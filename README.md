@@ -19,7 +19,7 @@ library, and how they fit together.
 
 ## Concept
 
-At the core of `Plan` there are to objects, `Containers` - which are your
+At the core of `Plan` there are two objects, `Containers` - which are your
 layout blocks, and `Rules` which determine where your Containers are positioned.
 
 Containers are able to contain other Containers, and these children use their
