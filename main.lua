@@ -1,33 +1,34 @@
-local Plan = require "Plan"
+local Plan = require "plan"
 local Rules = Plan.Rules
 
 local Panel = require "examples.panel"
 
-local ui = nil
+local uiRoot = nil
 
 function love.load()
-  ui = Plan.new()
-  local rules = Rules.new()
-    :addX(Plan.pixel(10))
-    :addY(Plan.center())
-    :addWidth(Plan.relative(0.5))
-    :addHeight(Plan.aspect(1))
+  -- Plan exposes its internal rules via functions, rather than objects for
+  -- ease of use.
+  local layoutRules = Rules.new()
+    :addX(Plan.center())
+    :addY(Plan.pixel(20))
+    :addWidth(Plan.aspect(1))
+    :addHeight(Plan.relative(0.33))
 
-  local panel = Panel:new(rules, { 0.133, 0.133, 0.133 })
-  ui:addChild(panel)
+  local panel = Panel:new(layoutRules, { 0.133, 0.133, 0.133 })
+
+  uiRoot = Plan.new()
+  uiRoot:addChild(panel)
 end
 
 function love.update(dt)
-  ui:update(dt)
+  uiRoot:update(dt)
 end
 
 function love.draw()
-  love.graphics.push("all")
-  love.graphics.clear(1, 1, 1)
-  ui:draw()
-  love.graphics.pop()
+  love.graphics.clear({ 0.7, 0.7, 0.7 })
+  uiRoot:draw()
 end
 
-function love.resize(x, y)
-  ui:refresh()
+function love.resize()
+  uiRoot:refresh()
 end

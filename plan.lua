@@ -281,8 +281,9 @@ function Rules:addHeight(rule)
 end
 
 function Rules:realise(element)
-  return self.rules.x:realise("x", element, self.rules),
-    self.rules.y:realise("y", element, self.rules),
+    local parent = element.parent or {}
+    return (parent.x or 0) + self.rules.x:realise("x", element, self.rules),
+    (parent.y or 0) + self.rules.y:realise("y", element, self.rules),
     self.rules.w:realise("w", element, self.rules),
     self.rules.h:realise("h", element, self.rules)
 end
