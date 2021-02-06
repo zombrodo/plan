@@ -38,6 +38,11 @@ local function indexOf(coll, item)
       return i
     end
   end
+  return -1
+end
+
+local function contains(coll, item)
+  return indexOf(coll, item) ~= -1
 end
 
 -- ============================================================================
@@ -242,6 +247,61 @@ function Plan.aspect(value)
   return AspectRule.new(value)
 end
 
+-- ====================================
+-- Parent Rule
+-- ====================================
+
+local ParentRule = {}
+ParentRule.__index = ParentRule
+
+function ParentRule.new()
+  local self = setmetatable({}, ParentRule)
+  return self
+end
+
+function ParentRule:realise(dimension, element, rules)
+  return element.parent[dimension]
+end
+
+function Plan.parent()
+  return ParentRule.new()
+end
+
+-- ====================================
+-- Full Rule
+-- ====================================
+
+local FullRule = {}
+FullRule.__index = FullRule
+
+function FullRule.new(value)
+  local self = setmetatable({}, FullRule)
+  self.value = value
+  return self
+end
+
+function FullRule:realise(dimension, element, rules)
+  if dimension == "x" then
+    return rules.w:realise("w", element, rules) - self.value
+  end
+
+  if dimension == "y" then
+    return rules.h:realise("h", element, rules) - self.value
+  end
+
+  if dimension == "w" then
+    return element.parent.w - self.value
+  end
+
+  if dimension == "h" then
+    return element.parent.h - self.value
+  end
+end
+
+function Plan.full(value)
+  return FullRule.new(value)
+end
+
 -- ============================================================================
 -- Rules Builder
 -- ============================================================================
@@ -291,9 +351,56 @@ end
 Plan.Rules = Rules
 
 -- ============================================================================
+-- Rule Factories
+-- ============================================================================
+
+local RuleFactory = {}
+
+function RuleFactory.full()
+  local rules = Rules.new()
+  rules:addX(Plan.parent())
+    :addY(Plan.parent())
+    :addWidth(Plan.parent())
+    :addHeight(Plan.parent())
+  return rules
+end
+
+function RuleFactory.half(direction)
+  if not contains({"top", "bottom", "right", "left"}, direction) then
+    error("Unknown direction passed")
+  end
+
+  local rules = RuleFactory.full()
+
+  if direction == "top" then
+    rules:addHeight(Plan.relative(0.5))
+  end
+
+  if direction == "bottom" then
+    rules:addY(Plan.relative(0.5))
+    rules:addHeight(Plan.relative(0.5))
+  end
+
+  if direction == "left" then
+    rules:addWidth(Plan.relative(0.5))
+  end
+
+  if direction == "right" then
+    rules:addX(Plan.relative(0.5))
+    rules:addWidth(Plan.relative(0.5))
+  end
+
+  return rules
+end
+
+Plan.RuleFactory = RuleFactory
+
+-- ============================================================================
 -- Entrypoint
 -- ============================================================================
 
+-- We cannot use `RuleFactory.full` as it relies on a parent, and this is the
+-- root.
 local function __fullScreen()
   local rules = Rules.new()
     :addX(PixelRule.new(0))

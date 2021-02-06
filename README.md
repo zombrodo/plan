@@ -64,12 +64,14 @@ Thats where Rules come into play. The constructor for a `Container` requires a
 `Rules` object to be passed in. These Rules are then used to compute the
 position, and size, of the container.
 
-`Plan` provides four rules out of the box:
+`Plan` provides six rules out of the box:
 
 * `PixelRule` for constant pixel values,
 * `RelativeRule` for values relative to its parent,
 * `CenterRule` for centering the position in its parent,
 * `AspectRule` for maintaining an aspect ratio with itself
+* `ParentRule` for taking the same value as its parent
+* `FullRule` for taking up the same value of its parent, minus an offset
 
 more advanced users can add their own if they see fit, but we'll leave that
 for now.
