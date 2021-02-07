@@ -5,6 +5,17 @@
 _Plan is in its early stages, may be full of bugs, and could easily change.
 Use with caution!_
 
+* [Usage](#usage)
+* [Concepts](#concepts)
+* [Example](#example)
+* [API](#api)
+  * [Plan](#plan-1)
+  * [Plan.Container](#plancontainer)
+  * [Plan.Rules](#planrules)
+    * [Bundled Rules](#bundled-rules)
+  * [Plan.RuleFactory](#planrulefactory)
+* [Advanced Usage](#advanced-usage)
+
 ## Usage
 
 `Plan` is designed to sit all within a single file, and can easily be thrown
@@ -17,7 +28,7 @@ local Plan = require "path.to.libs.plan"
 Before jumping into the code, it'd be good to go over the basic ideas of the
 library, and how they fit together.
 
-## Concept
+## Concepts
 
 At the core of `Plan` there are two objects, `Containers` - which are your
 layout blocks, and `Rules` which determine where your Containers are positioned.
@@ -32,7 +43,7 @@ Let's look at an example.
 ## Example
 
 Any layout managed by `Plan` requires a root. Calling `Plan.new()` will create a
-new root which dimensions take up the entire screen at the point of calling.
+new root whose dimensions take up the entire screen at the point of calling.
 
 We'll also hook into `update` and `draw` pre-emptively. For the root, and all
 Containers really, these do nothing but call `update` and `draw` on its children
@@ -74,8 +85,8 @@ position, and size, of the container.
 * `MaxRule` for taking the maximal value from its parent, ie `parent.width` for
   `x`. Optionally, an offset can be added so that it is `parent.width - offset`.
 
-more advanced users can add their own if they see fit, but we'll leave that
-for now.
+more [advanced users](#advanced-usage) can add their own if they see fit, but
+we'll leave that for now.
 
 Lets give the constraints listed out above a go in `Plan`:
 
@@ -114,7 +125,8 @@ end
 Sweet! Lets run that and... nothing.
 
 If you remember, `Containers` _have no graphical component_ - we have to add
-that ourselves. Luckily, `Plan` makes it easy to do so - `Container:extend()`
+that ourselves. Luckily, `Plan` makes it easy to do so with `Container:extend()`
+allowing us to override the base `Container` and add our own.
 
 Lets create a `Panel` object that acts like a container, but draws a standard
 box:
@@ -129,9 +141,9 @@ we're adding a colour, and want to draw a coloured box, we'll need to override
 the `new` function, and the `draw` function.
 
 `Plan` makes this easy by exposing the `super` field on all extended objects.
-If you're familiar with `classic.lua`, then this may look familiar
+If you've used `classic.lua`, then this syntax may look familiar
 
-Lets take a look how this works
+Lets take a look how this works:
 
 ```lua
 local Panel = Container:extend()
@@ -211,7 +223,7 @@ function love.conf(t)
 end
 ```
 
-Then, we can add this to the bottom of our example:
+Then, we can add this callback to the bottom of our example:
 
 ```lua
 function love.resize()
@@ -227,11 +239,13 @@ resizing the window:
 Wahay! Our Panel now moves and scales depending on the Rules we set upon
 creation.
 
+Congratulations, you've just written your first custom Plan component!
+
 ## API
 
 ### `Plan`
 
-Plan is both the entry point, as well as the helper `root` container.
+`Plan` is both the entry point, as well as the helper `root` container.
 
 #### `Plan.new()`
 
