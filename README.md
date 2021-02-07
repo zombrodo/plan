@@ -2,7 +2,7 @@
 
 `Plan` is a super simple layout helper designed for use with Love2d.
 
-_Plan is in its very early stages, and is probably not ready for the big time.
+_Plan is in its early stages, may be full of bugs, and could easily change.
 Use with caution!_
 
 ## Usage
@@ -71,7 +71,8 @@ position, and size, of the container.
 * `CenterRule` for centering the position in its parent,
 * `AspectRule` for maintaining an aspect ratio with itself
 * `ParentRule` for taking the same value as its parent
-* `FullRule` for taking up the same value of its parent, minus an offset
+* `MaxRule` for taking the maximal value from its parent, ie `parent.width` for
+  `x`. Optionally, an offset can be added so that it is `parent.width - offset`.
 
 more advanced users can add their own if they see fit, but we'll leave that
 for now.
@@ -228,4 +229,294 @@ creation.
 
 ## API
 
-TODO
+### `Plan`
+
+Plan is both the entry point, as well as the helper `root` container.
+
+#### `Plan.new()`
+
+Returns a new `Container` with no parent (a root) with the dimensions `x = 0`,
+`y = 0`, `w = love.graphics.getWidth()`, `h = love.graphics.getHeight()`.
+`Plan` doesn't extend `Container`, however you can access its underlying
+container with `Plan.new().root`
+
+#### `:refresh()`
+
+Triggers a recalculation of the layout based off of its `rules`. Resets the
+rules of its container to the screen size.
+
+#### `:addChild(child: Container)`
+
+Adds a new `child` container. Behaves the same as `Container:addChild(child)`
+
+#### `:removeChild(child: Container)`
+
+Removes a `child` container. Behaves the same as `Container:removeChild(child)`
+
+#### `:update(dt: number)`
+
+Updates all child containers. Behaves the same as `Container:update(dt)`
+
+#### `:draw()`
+
+Draws all child containers. Behaves the same as `Container:draw()`
+
+### `Plan.Container`
+
+Containers are objects with locations determined by `Rules`. Generally it's
+helpful to alias `Plan.Container` with `Container`
+
+```lua
+local Plan = require "lib.plan"
+local Container = Plan.Container
+```
+
+#### `Container:new(rules: Plan.Rules)`
+
+Creates a new Container. The created Container will not have been realised (its
+`x`, `y`, `w`, `h` values all 0, its parent `nil`) until it has been either
+added to a `parent`, or `:refresh()` called directly.
+
+
+#### `:extend()`
+
+Returns a new object that inherits from `Container`. The new object can choose
+to override certain functions (such as `draw`), otherwise it will fall back on
+`Container`.
+
+When overriding, you can call `MyObj.super` to refer to the parent `Container`
+object. This is useful for still doing operations defined in `Container` such as
+updating every child:
+
+```lua
+function MyObj:update(dt)
+  self.x = self.x + self.speed + dt -- update some local state
+  MyObj.super.update(self, dt) -- update all childen via `Container:update(dt)`
+end
+```
+
+When overriding `:new` then you have to call `MyObj.super.new(self, rules)` in
+order to initialise the `Container`:
+
+```lua
+function MyObj:new(rules, otherParameter)
+  local obj = MyObj.super.new(self, rules)
+  obj.otherParameter = otherParameter
+  return obj
+end
+```
+
+#### `:addChild(child: Container)`
+
+Adds `child` as a child of the container. Sets the field of `parent` on `child`
+to itself, and then calls `:refresh` on itself to realise its children.
+
+#### `:removeChild(child: Container)`
+
+Removes `child` as a child of the container.
+
+#### `:refresh()`
+
+Recalculates the container's dimensions based on the rules, then recalculates all
+child containers.
+
+#### `:update(dt: number)`
+
+Updates the container. By default, `Container` does no sort of update, instead
+just passes the call on to each child.
+
+#### `:draw()`
+
+Draws the container. By default `Container` has no graphical component, instead
+just passes the call onto each child.
+
+### `Plan.Rules`
+
+`Rules` are collections for rules for `Containers`. Generally it's helpful to
+alias `Plan.Rules` with `Rules`:
+
+```lua
+local Plan = "lib.plan"
+local Rules = Plan.Rules
+```
+
+#### `Rules.new()`
+
+Retuns a new `Rules` object.
+
+#### `:addX(Rule: rule)`
+
+Sets the `x` rule for the rules collection. If a value is already set for `x`,
+then it is overwritten.
+
+#### `:addY(Rule: rule)`
+
+Sets the `y` rule for the rules collection. If a value is already set for `y`,
+then it is overwritten.
+
+#### `:addWidth(Rule: rule)`
+
+Sets the `width` rule for the rules collection. If a value is already set for
+`width`, then it is overwritten.
+
+#### `:addHeight(Rule: rule)`
+
+Sets the `height` rule for the rules collection. If a value is already set for
+`height`, then it is overwritten.
+
+#### `:realise(element: Container)`
+
+Triggers a calculation of the `Rules`' rules. Returns the resultant
+`x`, `y`, `width` and `height`.
+
+### Bundled Rules
+
+`Plan` provides six rules out of the box, with the ability to add your own
+custom ones (described in the `Advanced Usage` section).
+
+#### Plan.pixel(value: number)
+
+Returns a `PixelRule` object (internal) which describes a value in pixels.
+
+```lua
+rules:addX(Plan.pixel(10)) -- 10 pixels from the left
+```
+
+#### Plan.center()
+
+Returns a `CenterRule` object (internal) which centers the dimension. Calling
+this on `width` or `height` will result in an error.
+
+```lua
+rules:addX(Plan.center()) -- centered horizontally
+  :addHeight(Plan.center()) -- blows up.
+```
+
+#### Plan.relative(value: number)
+
+Returns a `RelativeRule` object (internal) which sets the given dimension
+relative to the same dimension on the `parent`.
+
+```lua
+rules:addX(Plan.relative(0.33)) -- positioned a third of the way from the left
+```
+
+#### Plan.aspect(value: number)
+
+Returns an `AspectRule` object (internal) which sets the given dimension as a
+ratio to the opposite. Calling this on `x` or `y` will result in an error.
+
+```lua
+rules:addWidth(Plan.pixel(400)) -- 400 pixels wide
+     :addHeight(Plan.aspect(2)) -- 800 pixels high
+     :addX(Plan.aspect(1)) -- blows up
+```
+
+
+#### Plan.parent()
+
+Returns a `ParentRule` object (internal) which sets the given dimension the same
+as the elements parent.
+
+```lua
+parentRules:addWidth(Plan.pixel(100)) -- parent width is 100 pixels
+-- ...
+rules:addWidth(Plan.parent()) -- width is 100 pixels
+```
+
+#### Plan.max(value: number)
+
+Returns a `MaxRule` object (internal) which sets the given dimension to be the
+maximal value of its parent. For example, calling this on `width` or `height`
+will result in the `width` and `height` of the parent, however calling this on
+`x` or `y` will also result in `width` and `height` respectively. Optionally
+takes an offset value that is subtracted from the result.
+
+```lua
+parentRules:addWidth(Plan.pixel(100)) -- parent width is 100 pixels
+-- ...
+rules:addX(Plan.max(20)) -- horizontal position is 80 pixels
+```
+
+### `Plan.RuleFactory`
+
+`Plan` provides "factories" for some common base `Rules` objects. Currently
+there are two, `full` and `half`.
+
+The intenion is to use these base `Rules` objects, and overwrite the dimensions
+you do not want. More will be added in the future.
+
+#### `Plan.RuleFactory.full()`
+
+Returns a `Rules` object with every dimension set to `Plan.parent()`.
+
+#### `Plan.RuleFactory.half(direction: string)`
+
+Returns a `Rules` object set to result in `half` of the `parent` container the
+rules are given to. Takes a `direction` that describes which half you want.
+
+Accepted directions are `"top"`, `"bottom"`, `"left"` and `"right"`.
+
+## Advanced Usage
+
+This section describes how you might take further advantage of some of the
+features of `Plan`. They aren't necessarily essential to know, but if you find
+the out-of-the-box features lacking, here's where to turn.
+
+### Custom Roots
+
+`Plan.new()` does not have to be the root of your layout. It's merely provided
+as a helpful starting point that may cover most scenarios.
+
+Personally, I recommend using `Plan.new()` as by creating your own root, you are
+limited in which `rules` you can use to just `pixel`, as the remainder require
+_some_ parent existing.
+
+However, in cases where you want a layout as a particular resoltion,
+you can forgo the `Plan.new()` layout, and instead create your own by creating
+a `Container` directly.
+
+
+```lua
+local Plan = require "lib.plan"
+local Container = Plan.Container
+local Rules = Plan.Rules
+
+local root = nil
+
+function love.load()
+ local rules = Rules.new():addX(Plan.pixel(0))
+    :addY(Plan.pixel(0))
+    :addWidth(Plan.pixel(love.graphics.getWidth()))
+    :addHeight(Plan.pixel(love.graphics.getHeight()))
+  root = Container.new(rules)
+end
+```
+
+### Custom Rules
+
+Sometimes `Plan` may not give you the rule you would like. Hopefully there are
+more added in the future, but if you want your own secret sauce, you can provide
+your own layout rules.
+
+A Plan `Rule` requires only one function to be exposed, `realise`:
+
+#### `IRule:realise(dimension: string, element: Container, rules: Rules)`
+
+Returns the realised dimension.
+
+`dimension` will be one of `"x"`, `"y"`, `"w"` for width, and `"h"` for height.
+`element` is the Element you are calculating the rule for - a common use for
+this is to fetch `element.parent`.
+
+Sometimes you need to base your value off of another rule, which is why `rules`
+is provided. The inbuilt rules assume that any other `dimension` has not been
+realised, so it's often safer to just realise the dimension you want yourself -
+`rules.w:realise("w", element, rules)` will return the realised width for the
+element, without setting that value.
+
+## Contributing
+
+Feel free to open issues and pull requests! `Plan` is in its early days, and
+I'm adding to it when I come across a feature I would like to add while working
+on other projects. If I'm missing anything you'd like, please, let me know!

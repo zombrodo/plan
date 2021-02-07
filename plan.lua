@@ -1,5 +1,5 @@
 local Plan = {
-  _VERSION = '0.1',
+  _VERSION = '0.2',
   _DESCRIPTION = 'Plan, a layout helper, designed for LÖVE',
   _URL = 'https://github.com/zombrodo/plan',
   _LICENSE = [[
@@ -271,16 +271,16 @@ end
 -- Full Rule
 -- ====================================
 
-local FullRule = {}
-FullRule.__index = FullRule
+local MaxRule = {}
+MaxRule.__index = MaxRule
 
-function FullRule.new(value)
-  local self = setmetatable({}, FullRule)
-  self.value = value
+function MaxRule.new(value)
+  local self = setmetatable({}, MaxRule)
+  self.value = value or 0
   return self
 end
 
-function FullRule:realise(dimension, element, rules)
+function MaxRule:realise(dimension, element, rules)
   if dimension == "x" then
     return rules.w:realise("w", element, rules) - self.value
   end
@@ -298,8 +298,8 @@ function FullRule:realise(dimension, element, rules)
   end
 end
 
-function Plan.full(value)
-  return FullRule.new(value)
+function Plan.max(value)
+  return MaxRule.new(value)
 end
 
 -- ============================================================================
