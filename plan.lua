@@ -393,6 +393,24 @@ function RuleFactory.half(direction)
   return rules
 end
 
+function RuleFactory.relativeGutter(value)
+  local rules = Rules.new()
+  rules:addX(Plan.relative(value))
+      :addY(Plan.relative(value))
+      :addWidth(Plan.relative(1 - value))
+      :addHeight(Plan.relative(1 - value))
+  return rules
+end
+
+function RuleFactory.pixelGutter(value)
+  local rules = Rules.new()
+  rules:addX(Plan.pixel(value))
+    :addY(Plan.pixel(value))
+    :addWidth(Plan.max(value))
+    :addHeight(Plan.max(value))
+  return rules
+end
+
 Plan.RuleFactory = RuleFactory
 
 -- ============================================================================

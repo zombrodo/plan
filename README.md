@@ -471,6 +471,16 @@ rules are given to. Takes a `direction` that describes which half you want.
 
 Accepted directions are `"top"`, `"bottom"`, `"left"` and `"right"`.
 
+#### `Plan.RuleFactory.relativeGutter(value: number)`
+
+Returns a `Rules` object set to result in a container the specified relative
+space from the edge of the `parent` on all four sides.
+
+#### `Plan.RuleFactory.pixelGutter(value: number)`
+
+Returns a `Rules` object set to result in a container the specified pixel
+distance from the edges of the `parent` on all four sides.
+
 ## Advanced Usage
 
 This section describes how you might take further advantage of some of the
