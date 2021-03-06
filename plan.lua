@@ -1,5 +1,5 @@
 local Plan = {
-  _VERSION = '0.2',
+  _VERSION = '0.3',
   _DESCRIPTION = 'Plan, a layout helper, designed for LÖVE',
   _URL = 'https://github.com/zombrodo/plan',
   _LICENSE = [[
@@ -147,6 +147,10 @@ function PixelRule:realise(dimension, element, rules)
   return self.value
 end
 
+function PixelRule:clone()
+  return PixelRule.new(self.value)
+end
+
 function Plan.pixel(value)
   return PixelRule.new(value)
 end
@@ -176,6 +180,10 @@ function RelativeRule:realise(dimension, element, rules)
   if dimension == "y" then
     return element.parent["h"] * self.value
   end
+end
+
+function RelativeRule:clone()
+  return RelativeRule.new(self.value)
 end
 
 function Plan.relative(value)
@@ -212,7 +220,11 @@ function CenterRule:realise(dimension, element, rules)
   end
 end
 
-function Plan.center(value)
+function CenterRule:clone()
+  return CenterRule.new()
+end
+
+function Plan.center()
   return CenterRule.new()
 end
 
@@ -243,6 +255,10 @@ function AspectRule:realise(dimension, element, rules)
   end
 end
 
+function AspectRule:clone()
+  return AspectRule.new(self.value)
+end
+
 function Plan.aspect(value)
   return AspectRule.new(value)
 end
@@ -261,6 +277,10 @@ end
 
 function ParentRule:realise(dimension, element, rules)
   return element.parent[dimension]
+end
+
+function ParentRule:clone()
+  return ParentRule.new()
 end
 
 function Plan.parent()
@@ -296,6 +316,10 @@ function MaxRule:realise(dimension, element, rules)
   if dimension == "h" then
     return element.parent.h - self.value
   end
+end
+
+function MaxRule:clone()
+  return MaxRule.new(self.value)
 end
 
 function Plan.max(value)
@@ -346,6 +370,28 @@ function Rules:realise(element)
     (parent.y or 0) + self.rules.y:realise("y", element, self.rules),
     self.rules.w:realise("w", element, self.rules),
     self.rules.h:realise("h", element, self.rules)
+end
+
+function Rules:clone()
+  local copy = Rules.new()
+
+  if self.rules.x then
+    copy:addX(self.rules.x:clone())
+  end
+
+  if self.rules.y then
+    copy:addY(self.rules.y:clone())
+  end
+
+  if self.rules.w then
+    copy:addWidth(self.rules.w:clone())
+  end
+
+  if self.rules.h then
+    copy:addHeight(self.rules.h:clone())
+  end
+
+  return copy
 end
 
 Plan.Rules = Rules

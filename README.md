@@ -383,6 +383,11 @@ Sets the `height` rule for the rules collection. If a value is already set for
 Triggers a calculation of the `Rules`' rules. Returns the resultant
 `x`, `y`, `width` and `height`.
 
+#### `:clone()`
+
+Returns a copy of the current `Rules` object. Also calls `clone` on all rules
+in the collection.
+
 ### Bundled Rules
 
 `Plan` provides six rules out of the box, with the ability to add your own
@@ -538,6 +543,12 @@ is provided. The inbuilt rules assume that any other `dimension` has not been
 realised, so it's often safer to just realise the dimension you want yourself -
 `rules.w:realise("w", element, rules)` will return the realised width for the
 element, without setting that value.
+
+#### Optional: `IRule:clone()`
+
+Optionally, you can implement a `clone` function, that should return a new copy
+of the rule. This isn't required to run normally, but if you are making use of
+`Rules:clone` then it _is_ required.
 
 ## Contributing
 
