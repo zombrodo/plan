@@ -335,11 +335,12 @@ Rules.__index = Rules
 
 function Rules.new()
   local self = setmetatable({}, Rules)
+  -- Default to take up full parent.
   self.rules = {
-    x = nil,
-    y = nil,
-    w = nil,
-    h = nil,
+    x = Plan.parent(),
+    y = Plan.parent(),
+    w = Plan.parent(),
+    h = Plan.parent(),
   }
   return self
 end
