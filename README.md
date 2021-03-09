@@ -498,12 +498,13 @@ the out-of-the-box features lacking, here's where to turn.
 as a helpful starting point that may cover most scenarios.
 
 Personally, I recommend using `Plan.new()` as by creating your own root, you are
-limited in which `rules` you can use to just `pixel`, as the remainder require
-_some_ parent existing.
+limited in which `rules` you can use on it to just `pixel`, as the remainder
+require _some_ parent existing.
 
-However, in cases where you want a layout as a particular resoltion,
+However, in cases where you want a layout as a particular resolution,
 you can forgo the `Plan.new()` layout, and instead create your own by creating
-a `Container` directly.
+a `Container` directly. In order to delineate that it's the UI root, then you
+must set the internal flag `isUIRoot` on the container to `true`:
 
 
 ```lua
@@ -518,7 +519,8 @@ function love.load()
     :addY(Plan.pixel(0))
     :addWidth(Plan.pixel(love.graphics.getWidth()))
     :addHeight(Plan.pixel(love.graphics.getHeight()))
-  root = Container.new(rules)
+  root = Container:new(rules)
+  root.isUIRoot = true
 end
 ```
 

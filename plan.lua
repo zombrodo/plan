@@ -1,5 +1,5 @@
 local Plan = {
-  _VERSION = '0.3',
+  _VERSION = '0.3.1',
   _DESCRIPTION = 'Plan, a layout helper, designed for LÖVE',
   _URL = 'https://github.com/zombrodo/plan',
   _LICENSE = [[
@@ -45,6 +45,16 @@ local function contains(coll, item)
   return indexOf(coll, item) ~= -1
 end
 
+local function getRoot(container)
+  local parent = container.parent
+  if parent then
+    while parent.parent ~= nil do
+      parent = parent.parent
+    end
+  end
+  return parent
+end
+
 -- ============================================================================
 -- Root Object (not public)
 -- ============================================================================
@@ -83,13 +93,21 @@ function Container:new(rules)
   container.rules = rules
   container.parent = nil
   container.children = {}
+  container.isUIRoot = false
   return container
+end
+
+function Container:__isAttached()
+  local root = getRoot(self)
+  return root and root.isUIRoot
 end
 
 function Container:addChild(child)
   child.parent = self
   table.insert(self.children, child)
-  self:refresh()
+  if self.isUIRoot or self:__isAttached() then
+    self:refresh()
+  end
 end
 
 function Container:removeChild(child)
@@ -478,6 +496,7 @@ end
 function Plan.new()
   local self = setmetatable({}, Plan)
   self.root = Container:new(__fullScreen())
+  self.root.isUIRoot = true
   return self
 end
 
