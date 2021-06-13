@@ -462,8 +462,9 @@ function RuleFactory.relativeGutter(value)
   local rules = Rules.new()
   rules:addX(Plan.relative(value))
       :addY(Plan.relative(value))
-      :addWidth(Plan.relative(1 - value))
-      :addHeight(Plan.relative(1 - value))
+      -- margin must be applied on both "sides"
+      :addWidth(Plan.relative(1 - value * 2))
+      :addHeight(Plan.relative(1 - value * 2))
   return rules
 end
 
@@ -471,8 +472,9 @@ function RuleFactory.pixelGutter(value)
   local rules = Rules.new()
   rules:addX(Plan.pixel(value))
     :addY(Plan.pixel(value))
-    :addWidth(Plan.max(value))
-    :addHeight(Plan.max(value))
+    -- margin must be applied on both "sides"
+    :addWidth(Plan.max(value * 2))
+    :addHeight(Plan.max(value * 2))
   return rules
 end
 
