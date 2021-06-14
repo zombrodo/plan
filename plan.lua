@@ -165,6 +165,10 @@ function PixelRule:realise(dimension, element, rules)
   return self.value
 end
 
+function PixelRule:set(value)
+  self.value = value
+end
+
 function PixelRule:clone()
   return PixelRule.new(self.value)
 end
@@ -198,6 +202,10 @@ function RelativeRule:realise(dimension, element, rules)
   if dimension == "y" then
     return element.parent["h"] * self.value
   end
+end
+
+function RelativeRule:set(value)
+  self.value = value
 end
 
 function RelativeRule:clone()
@@ -273,6 +281,10 @@ function AspectRule:realise(dimension, element, rules)
   end
 end
 
+function AspectRule:set(value)
+  self.value = value
+end
+
 function AspectRule:clone()
   return AspectRule.new(self.value)
 end
@@ -305,45 +317,6 @@ function Plan.parent()
   return ParentRule.new()
 end
 
--- ====================================
--- Full Rule
--- ====================================
-
-local MaxRule = {}
-MaxRule.__index = MaxRule
-
-function MaxRule.new(value)
-  local self = setmetatable({}, MaxRule)
-  self.value = value or 0
-  return self
-end
-
-function MaxRule:realise(dimension, element, rules)
-  if dimension == "x" then
-    return rules.w:realise("w", element, rules) - self.value
-  end
-
-  if dimension == "y" then
-    return rules.h:realise("h", element, rules) - self.value
-  end
-
-  if dimension == "w" then
-    return element.parent.w - self.value
-  end
-
-  if dimension == "h" then
-    return element.parent.h - self.value
-  end
-end
-
-function MaxRule:clone()
-  return MaxRule.new(self.value)
-end
-
-function Plan.max(value)
-  return MaxRule.new(value)
-end
-
 -- ============================================================================
 -- Rules Builder
 -- ============================================================================
@@ -368,9 +341,17 @@ function Rules:addX(rule)
   return self
 end
 
+function Rules:getX()
+  return self.rules.x
+end
+
 function Rules:addY(rule)
   self.rules.y = rule
   return self
+end
+
+function Rules:getY()
+  return self.rules.y
 end
 
 function Rules:addWidth(rule)
@@ -378,9 +359,17 @@ function Rules:addWidth(rule)
   return self
 end
 
+function Rules:getWidth()
+  return self.rules.w
+end
+
 function Rules:addHeight(rule)
   self.rules.h = rule
   return self
+end
+
+function Rules:getHeight()
+  return self.rules.h
 end
 
 function Rules:realise(element)
@@ -389,6 +378,25 @@ function Rules:realise(element)
     (parent.y or 0) + self.rules.y:realise("y", element, self.rules),
     self.rules.w:realise("w", element, self.rules),
     self.rules.h:realise("h", element, self.rules)
+end
+
+function Rules:update(dimension, fn, ...)
+  dimension = string.lower(dimension)
+  if dimension == "x" then
+    self.rules.x = fn(self.rules.x, ...)
+  end
+
+  if dimension == "y" then
+    self.rules.y = fn(self.rules.y, ...)
+  end
+
+  if dimension == "w" or dimension == "width" then
+    self.rules.w = fn(self:getWidth(), ...)
+  end
+
+  if dimension == "h" or dimension == "height" then
+    self.rules.h = fn(self:getHeight(), ...)
+  end
 end
 
 function Rules:clone()

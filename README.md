@@ -5,16 +5,16 @@
 _Plan is in its early stages, may be full of bugs, and could easily change.
 Use with caution!_
 
-* [Usage](#usage)
-* [Concepts](#concepts)
-* [Example](#example)
-* [API](#api)
-  * [Plan](#plan-1)
-  * [Plan.Container](#plancontainer)
-  * [Plan.Rules](#planrules)
-    * [Bundled Rules](#bundled-rules)
-  * [Plan.RuleFactory](#planrulefactory)
-* [Advanced Usage](#advanced-usage)
+- [Usage](#usage)
+- [Concepts](#concepts)
+- [Example](#example)
+- [API](#api)
+  - [Plan](#plan-1)
+  - [Plan.Container](#plancontainer)
+  - [Plan.Rules](#planrules)
+    - [Bundled Rules](#bundled-rules)
+  - [Plan.RuleFactory](#planrulefactory)
+- [Advanced Usage](#advanced-usage)
 
 ## Usage
 
@@ -77,12 +77,12 @@ position, and size, of the container.
 
 `Plan` provides six rules out of the box:
 
-* `PixelRule` for constant pixel values,
-* `RelativeRule` for values relative to its parent,
-* `CenterRule` for centering the position in its parent,
-* `AspectRule` for maintaining an aspect ratio with itself
-* `ParentRule` for taking the same value as its parent
-* `MaxRule` for taking the maximal value from its parent, ie `parent.width` for
+- `PixelRule` for constant pixel values,
+- `RelativeRule` for values relative to its parent,
+- `CenterRule` for centering the position in its parent,
+- `AspectRule` for maintaining an aspect ratio with itself
+- `ParentRule` for taking the same value as its parent
+- `MaxRule` for taking the maximal value from its parent, ie `parent.width` for
   `x`. Optionally, an offset can be added so that it is `parent.width - offset`.
 
 more [advanced users](#advanced-usage) can add their own if they see fit, but
@@ -291,7 +291,6 @@ Creates a new Container. The created Container will not have been realised (its
 `x`, `y`, `w`, `h` values all 0, its parent `nil`) until it has been either
 added to a `parent`, or `:refresh()` called directly.
 
-
 #### `:extend()`
 
 Returns a new object that inherits from `Container`. The new object can choose
@@ -431,7 +430,6 @@ rules:addWidth(Plan.pixel(400)) -- 400 pixels wide
      :addX(Plan.aspect(1)) -- blows up
 ```
 
-
 #### Plan.parent()
 
 Returns a `ParentRule` object (internal) which sets the given dimension the same
@@ -441,20 +439,6 @@ as the elements parent.
 parentRules:addWidth(Plan.pixel(100)) -- parent width is 100 pixels
 -- ...
 rules:addWidth(Plan.parent()) -- width is 100 pixels
-```
-
-#### Plan.max(value: number)
-
-Returns a `MaxRule` object (internal) which sets the given dimension to be the
-maximal value of its parent. For example, calling this on `width` or `height`
-will result in the `width` and `height` of the parent, however calling this on
-`x` or `y` will also result in `width` and `height` respectively. Optionally
-takes an offset value that is subtracted from the result.
-
-```lua
-parentRules:addWidth(Plan.pixel(100)) -- parent width is 100 pixels
--- ...
-rules:addX(Plan.max(20)) -- horizontal position is 80 pixels
 ```
 
 ### `Plan.RuleFactory`
@@ -505,7 +489,6 @@ However, in cases where you want a layout as a particular resolution,
 you can forgo the `Plan.new()` layout, and instead create your own by creating
 a `Container` directly. In order to delineate that it's the UI root, then you
 must set the internal flag `isUIRoot` on the container to `true`:
-
 
 ```lua
 local Plan = require "lib.plan"
