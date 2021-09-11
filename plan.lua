@@ -1,5 +1,5 @@
 local Plan = {
-  _VERSION = '0.3.1',
+  _VERSION = '0.4.0',
   _DESCRIPTION = 'Plan, a layout helper, designed for LÖVE',
   _URL = 'https://github.com/zombrodo/plan',
   _LICENSE = [[
