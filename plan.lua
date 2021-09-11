@@ -177,6 +177,10 @@ function PixelRule:clone()
   return PixelRule.new(self.value)
 end
 
+function PixelRule:set(value)
+  self.value = value
+end
+
 function Plan.pixel(value)
   return PixelRule.new(value)
 end
@@ -210,6 +214,10 @@ end
 
 function RelativeRule:clone()
   return RelativeRule.new(self.value)
+end
+
+function RelativeRule:set(value)
+  self.value = value
 end
 
 function Plan.relative(value)
@@ -250,6 +258,10 @@ function CenterRule:clone()
   return CenterRule.new()
 end
 
+function CenterRule:set()
+  -- no op
+end
+
 function Plan.center()
   return CenterRule.new()
 end
@@ -285,6 +297,10 @@ function AspectRule:clone()
   return AspectRule.new(self.value)
 end
 
+function AspectRule:set(value)
+  self.value = value
+end
+
 function Plan.aspect(value)
   return AspectRule.new(value)
 end
@@ -307,6 +323,10 @@ end
 
 function ParentRule:clone()
   return ParentRule.new()
+end
+
+function ParentRule:set()
+  -- no op
 end
 
 function Plan.parent()
@@ -342,6 +362,10 @@ function MaxRule:realise(dimension, element, rules)
   if dimension == "h" then
     return element.parent.h - self.value
   end
+end
+
+function MaxRule:set(value)
+  self.value = value
 end
 
 function MaxRule:clone()
@@ -388,9 +412,17 @@ function Rules:addX(rule)
   return self
 end
 
+function Rules:getX()
+  return self.rules.x
+end
+
 function Rules:addY(rule)
   self.rules.y = validateRuleInput(rule, "y")
   return self
+end
+
+function Rules:getY()
+  return self.rules.y
 end
 
 function Rules:addWidth(rule)
@@ -398,9 +430,17 @@ function Rules:addWidth(rule)
   return self
 end
 
+function Rules:getWidth()
+  return self.rules.w
+end
+
 function Rules:addHeight(rule)
   self.rules.h = validateRuleInput(rule, "height")
   return self
+end
+
+function Rules:getHeight()
+  return self.rules.h
 end
 
 function Rules:realise(element)
@@ -431,6 +471,25 @@ function Rules:clone()
   end
 
   return copy
+end
+
+function Rules:update(dimension, fn, ...)
+  dimension = string.lower(dimension)
+  if dimension == "x" then
+    self.rules.x = fn(self:getX(), ...)
+  end
+
+  if dimension == "y" then
+    self.rules.y = fn(self:getY(), ...)
+  end
+
+  if dimension == "w" or dimension == "width" then
+    self.rules.w = fn(self:getWidth(), ...)
+  end
+
+  if dimension == "h" or dimension == "height" then
+    self.rules.h = fn(self:getHeight(), ...)
+  end
 end
 
 Plan.Rules = Rules

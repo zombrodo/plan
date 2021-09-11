@@ -372,25 +372,68 @@ Retuns a new `Rules` object.
 Sets the `x` rule for the rules collection. If a value is already set for `x`,
 then it is overwritten.
 
+#### `:getX()`
+
+Returns the `Rule` for `x`.
+
 #### `:addY(Rule: rule)`
 
 Sets the `y` rule for the rules collection. If a value is already set for `y`,
 then it is overwritten.
+
+#### `:getY()`
+
+Returns the `Rule` for `y`
 
 #### `:addWidth(Rule: rule)`
 
 Sets the `width` rule for the rules collection. If a value is already set for
 `width`, then it is overwritten.
 
+#### `:getWidth()`
+
+Returns the `Rule` for `width`
+
 #### `:addHeight(Rule: rule)`
 
 Sets the `height` rule for the rules collection. If a value is already set for
 `height`, then it is overwritten.
 
+#### `:getHeight()`
+
+Returns the `Rule` for `Height`
+
 #### `:realise(element: Container)`
 
 Triggers a calculation of the `Rules`' rules. Returns the resultant
 `x`, `y`, `width` and `height`.
+
+#### `:update(dimension: string, fn: function, ...)`
+
+Updates the `dimension` rule with the provided update function `fn`. The
+existing rule at the given dimension is provided as the first argument to the
+update function, and any other args in `...` are passed as well.
+
+Under the hood, it'll look like.
+
+```lua
+self.rules[dimension] = fn(self.rules[dimension], ...)
+```
+
+Each in-built rule provides a `:set` function that takes the same arguments as
+its constructor to allow for easier updating of rules. For example
+
+```lua
+local oldRules = Rules.new()
+  :addX(Plan.pixel(100))
+
+-- Some point later
+
+oldRules:update("x", function(rule) rule:set(150) end)
+```
+
+**Remember**: updating a rule _will not_ update its layout until a `:refresh()`
+call is made!
 
 #### `:clone()`
 
@@ -401,6 +444,10 @@ in the collection.
 
 `Plan` provides six rules out of the box, with the ability to add your own
 custom ones (described in the `Advanced Usage` section).
+
+Each rule exposes a `:set` function that takes the same number of arguments as
+its constructor to allow for easy modification of rules. Note that rule value
+updates do not recalculate until `:refresh` is called upon the container.
 
 #### Plan.pixel(value: number)
 
@@ -560,6 +607,13 @@ element, without setting that value.
 Optionally, you can implement a `clone` function, that should return a new copy
 of the rule. This isn't required to run normally, but if you are making use of
 `Rules:clone` then it _is_ required.
+
+#### Optional: `IRule:set(args)`
+
+All the internal rules with `Plan` implement a `set` function, which takes the
+same arguments as its constructor. This is helpful as it can hide internals
+from the users behind the same API as construcion. Again, not necessary
+whatsoever, but a nice addition.
 
 ## Contributing
 
