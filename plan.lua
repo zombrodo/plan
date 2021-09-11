@@ -55,6 +55,14 @@ local function getRoot(container)
   return parent
 end
 
+local function isNumber(maybeNumber)
+  return type(maybeNumber) == "number"
+end
+
+local function isValidRule(maybeRule)
+  return maybeRule.realise ~= nil and type(maybeRule) == "function"
+end
+
 -- ============================================================================
 -- Root Object (not public)
 -- ============================================================================
@@ -306,7 +314,7 @@ function Plan.parent()
 end
 
 -- ====================================
--- Full Rule
+-- Max Rule
 -- ====================================
 
 local MaxRule = {}
@@ -363,23 +371,35 @@ function Rules.new()
   return self
 end
 
+local function validateRuleInput(input, dimension)
+  if isNumber(input) then
+    return PixelRule.new(input)
+  end
+
+  if not isValidRule(input) then
+    error("An invalid input was passed to " .. dimension .. "dimension")
+  end
+
+  return input
+end
+
 function Rules:addX(rule)
-  self.rules.x = rule
+  self.rules.x = validateRuleInput(rule, "x")
   return self
 end
 
 function Rules:addY(rule)
-  self.rules.y = rule
+  self.rules.y = validateRuleInput(rule, "y")
   return self
 end
 
 function Rules:addWidth(rule)
-  self.rules.w = rule
+  self.rules.w = validateRuleInput(rule, "width")
   return self
 end
 
 function Rules:addHeight(rule)
-  self.rules.h = rule
+  self.rules.h = validateRuleInput(rule, "height")
   return self
 end
 

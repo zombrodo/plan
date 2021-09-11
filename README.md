@@ -354,6 +354,15 @@ local Plan = "lib.plan"
 local Rules = Plan.Rules
 ```
 
+For convenience, calling any `add<X>` function with a `number` (instead of a rule)
+will treat the input as if you passed a `PixelRule` (more on individual rules
+further below)
+
+```lua
+local myRules = Rules.new()
+Rules:addX(4) -- equivalent to `:addX(Plan.pixel(4))``
+```
+
 #### `Rules.new()`
 
 Retuns a new `Rules` object.
