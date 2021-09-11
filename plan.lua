@@ -328,11 +328,11 @@ end
 
 function MaxRule:realise(dimension, element, rules)
   if dimension == "x" then
-    return rules.w:realise("w", element, rules) - self.value
+    return element.parent.w - self.value
   end
 
   if dimension == "y" then
-    return rules.h:realise("h", element, rules) - self.value
+    return element.parent.h - self.value
   end
 
   if dimension == "w" then
