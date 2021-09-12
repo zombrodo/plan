@@ -60,7 +60,7 @@ local function isNumber(maybeNumber)
 end
 
 local function isValidRule(maybeRule)
-  return maybeRule.realise ~= nil and type(maybeRule) == "function"
+  return maybeRule.realise ~= nil and type(maybeRule.realise) == "function"
 end
 
 -- ============================================================================
