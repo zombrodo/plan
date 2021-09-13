@@ -125,6 +125,10 @@ function Container:removeChild(child)
   end
 end
 
+function Container:clearChildren()
+  self.children = {}
+end
+
 function Container:refresh()
   self.x, self.y, self.w, self.h = self.rules:realise(self)
   for _, child in ipairs(self.children) do
