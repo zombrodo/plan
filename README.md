@@ -638,6 +638,8 @@ whatsoever, but a nice addition.
 Through using `:emit`, it's possible to automagically hook into Love callbacks.
 Since `Plan` is ideally only for UI components, it's probably best to only hook
 into input events. It's not wise to emit `draw` and `update` events manually.
+If using `resize`, you should not use it to resize an element, rather call
+`ui:refresh` instead.
 
 ```lua
 local callbacks = {
