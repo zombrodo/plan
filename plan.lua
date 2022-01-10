@@ -1,5 +1,5 @@
 local Plan = {
-  _VERSION = '0.4.0',
+  _VERSION = '0.5.0',
   _DESCRIPTION = 'Plan, a layout helper, designed for LÖVE',
   _URL = 'https://github.com/zombrodo/plan',
   _LICENSE = [[
@@ -150,6 +150,18 @@ function Container:draw()
   for _, child in ipairs(self.children) do
     if some(child.draw) then
       child:draw()
+    end
+  end
+end
+
+function Container:emit(event, ...)
+  for _, child in ipairs(self.children) do
+    if some(child[event]) and type(child[event]) == "function" then
+      local result = child[event](...)
+      -- If we return false, then we stop passing this around.
+      if result == false then
+        return
+      end
     end
   end
 end
@@ -604,6 +616,10 @@ end
 
 function Plan:draw()
   self.root:draw()
+end
+
+function Plan:emit(event, ...)
+  self.root:emit(event, ...)
 end
 
 return Plan

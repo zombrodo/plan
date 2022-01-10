@@ -5,16 +5,16 @@
 _Plan is in its early stages, may be full of bugs, and could easily change.
 Use with caution!_
 
-* [Usage](#usage)
-* [Concepts](#concepts)
-* [Example](#example)
-* [API](#api)
-  * [Plan](#plan-1)
-  * [Plan.Container](#plancontainer)
-  * [Plan.Rules](#planrules)
-    * [Bundled Rules](#bundled-rules)
-  * [Plan.RuleFactory](#planrulefactory)
-* [Advanced Usage](#advanced-usage)
+- [Usage](#usage)
+- [Concepts](#concepts)
+- [Example](#example)
+- [API](#api)
+  - [Plan](#plan-1)
+  - [Plan.Container](#plancontainer)
+  - [Plan.Rules](#planrules)
+    - [Bundled Rules](#bundled-rules)
+  - [Plan.RuleFactory](#planrulefactory)
+- [Advanced Usage](#advanced-usage)
 
 ## Usage
 
@@ -77,12 +77,12 @@ position, and size, of the container.
 
 `Plan` provides six rules out of the box:
 
-* `PixelRule` for constant pixel values,
-* `RelativeRule` for values relative to its parent,
-* `CenterRule` for centering the position in its parent,
-* `AspectRule` for maintaining an aspect ratio with itself
-* `ParentRule` for taking the same value as its parent
-* `MaxRule` for taking the maximal value from its parent, ie `parent.width` for
+- `PixelRule` for constant pixel values,
+- `RelativeRule` for values relative to its parent,
+- `CenterRule` for centering the position in its parent,
+- `AspectRule` for maintaining an aspect ratio with itself
+- `ParentRule` for taking the same value as its parent
+- `MaxRule` for taking the maximal value from its parent, ie `parent.width` for
   `x`. Optionally, an offset can be added so that it is `parent.width - offset`.
 
 more [advanced users](#advanced-usage) can add their own if they see fit, but
@@ -291,7 +291,6 @@ Creates a new Container. The created Container will not have been realised (its
 `x`, `y`, `w`, `h` values all 0, its parent `nil`) until it has been either
 added to a `parent`, or `:refresh()` called directly.
 
-
 #### `:extend()`
 
 Returns a new object that inherits from `Container`. The new object can choose
@@ -344,6 +343,27 @@ just passes the call on to each child.
 Draws the container. By default `Container` has no graphical component, instead
 just passes the call onto each child.
 
+#### `:emit(event: string, ...)`
+
+Emits an event down the tree. This emits events in a depth-first manner. Useful
+for hooking into input events (ie. love.keypressed).
+
+```lua
+function myContainer:keypressed(key)
+  print("key pressed", key)
+end
+
+-- ...
+
+function love.keypressed(key)
+  ui:emit("keypressed", key)
+end
+```
+
+To prevent the event continuing down a branch, return false from the handler to
+stop. Note, this won't mean that the event will stop _completely_, only prevent
+it being passed to its children (and their children et al).
+
 ### `Plan.Rules`
 
 `Rules` are collections for rules for `Containers`. Generally it's helpful to
@@ -360,7 +380,7 @@ further below)
 
 ```lua
 local myRules = Rules.new()
-Rules:addX(4) -- equivalent to `:addX(Plan.pixel(4))``
+Rules:addX(4) -- equivalent to `:addX(Plan.pixel(4))`
 ```
 
 #### `Rules.new()`
@@ -487,7 +507,6 @@ rules:addWidth(Plan.pixel(400)) -- 400 pixels wide
      :addX(Plan.aspect(1)) -- blows up
 ```
 
-
 #### Plan.parent()
 
 Returns a `ParentRule` object (internal) which sets the given dimension the same
@@ -562,7 +581,6 @@ you can forgo the `Plan.new()` layout, and instead create your own by creating
 a `Container` directly. In order to delineate that it's the UI root, then you
 must set the internal flag `isUIRoot` on the container to `true`:
 
-
 ```lua
 local Plan = require "lib.plan"
 local Container = Plan.Container
@@ -614,6 +632,35 @@ All the internal rules with `Plan` implement a `set` function, which takes the
 same arguments as its constructor. This is helpful as it can hide internals
 from the users behind the same API as construcion. Again, not necessary
 whatsoever, but a nice addition.
+
+### Hooking into LÖVE
+
+Through using `:emit`, it's possible to automagically hook into Love callbacks.
+Since `Plan` is ideally only for UI components, it's probably best to only hook
+into input events. It's not wise to emit `draw` and `update` events manually.
+
+```lua
+local callbacks = {
+  "directorydropped", "filedropped", "focus", "gamepadaxis", "gamepadpressed",
+  "gamepadreleased", "joystickaxis", "joystickhat", "joystickpressed",
+  "joystickreleased", "joystickremoved", "keypressed", "keyreleased",
+  "lowmemory", "mousefocus", "mousemoved", "mousepressed", "mousereleased",
+  "quit", "resize", "textedited", "textinput", "threaderror", "touchmoved",
+  "touchpressed", "touchreleased", "visible", "wheelmoved", "joystickadded"
+}
+
+function Plan.hook()
+  for i, callback in ipairs(callbacks) do
+    local actual = love[callback]
+    love[callback] = function(...)
+      if actual then
+        actual(...)
+      end
+      Plan.emit(callback, ...)
+    end
+  end
+end
+```
 
 ## Contributing
 
