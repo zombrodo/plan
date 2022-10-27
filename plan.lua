@@ -157,7 +157,7 @@ end
 function Container:emit(event, ...)
   for _, child in ipairs(self.children) do
     if some(child[event]) and type(child[event]) == "function" then
-      local result = child[event](...)
+      local result = child[event](child, ...)
       -- If we return false, then we stop passing this around.
       if result == false then
         return
