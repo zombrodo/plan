@@ -1,5 +1,5 @@
 local Plan = {
-  _VERSION = '0.5.0',
+  _VERSION = '0.6.0',
   _DESCRIPTION = 'Plan, a layout helper, designed for LÖVE',
   _URL = 'https://github.com/zombrodo/plan',
   _LICENSE = [[
@@ -163,6 +163,9 @@ function Container:emit(event, ...)
         return
       end
     end
+
+    -- Pass this event down to the child elements
+    child:emit(event, ...)
   end
 end
 
