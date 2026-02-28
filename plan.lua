@@ -406,8 +406,8 @@ function Rules.new()
   local self = setmetatable({}, Rules)
   -- Default to take up full parent.
   self.rules = {
-    x = Plan.parent(),
-    y = Plan.parent(),
+    x = Plan.pixel(0),
+    y = Plan.pixel(0),
     w = Plan.parent(),
     h = Plan.parent(),
   }
@@ -521,8 +521,8 @@ local RuleFactory = {}
 
 function RuleFactory.full()
   local rules = Rules.new()
-  rules:addX(Plan.parent())
-    :addY(Plan.parent())
+  rules:addX(Plan.pixel(0))
+    :addY(Plan.pixel(0))
     :addWidth(Plan.parent())
     :addHeight(Plan.parent())
   return rules
